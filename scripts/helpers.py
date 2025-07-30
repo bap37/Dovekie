@@ -80,6 +80,54 @@ def get_extinction(survdict):
             correctedmags[col+'_AV'] = survdict.apply(query_irsa,col=col,axis=1)
     return correctedmags
 
+
+def query_ebv_map(ra_array, dec_array, mapname, ebvmaps):
+    """returns ebv values from input map for input arrays of ra and dec. if mapname is invalid, prints available maps"""
+    #Created by MaKenzie Elliot
+
+    import numpy as np
+    import healpy as hp
+    from astropy.coordinates import SkyCoord
+    import astropy.units as u
+
+    ebvs = np.load("/filepath/ebvmaps.npz")
+    dustmaps = ebvs.files
+
+    
+    available_maps = ['csfd', 'lenzhi', 'chenghi', 'desi_gr', 'desi_rz', 'mudur_6', 'mudur_15']
+    equatorial_maps = ['desi_gr', 'desi_rz']
+
+    # if msapname invalid return mapname options
+    if (mapname is None) or (mapname.lower() == 'help') or (mapname not in available_maps):
+        print("Available dust maps:")
+        for name in available_maps:
+            print(f"  • {name}")
+        print("Please specify one of the map names above as `mapname`.")
+        return None
+
+    # set map and nside
+    ebvmap = ebvmaps[mapname]
+    nside = hp.npix2nside(ebvmap.size)
+
+    # ensure numpy arrays
+    ra_array = np.asarray(ra_array)
+    dec_array = np.asarray(dec_array)
+
+    # determine azi and alt, ensure using correct coords for given map
+    if mapname in equatorial_maps:
+        azi, alt = ra_array, dec_array
+        
+    else:
+        coords = SkyCoord(ra=ra_array*u.deg, dec=dec_array*u.deg, frame='icrs')
+        azi = coords.galactic.l.deg
+        alt = coords.galactic.b.deg
+
+    # query map for ebv values
+    hpix = hp.ang2pix(nside, azi, alt, lonlat=True)
+    ebv_vals = ebvmap[hpix]
+
+    return ebv_vals
+
 def sort_dustlaw(dustlaw):
     if dustlaw == "F99":
         from dust_extinction.parameter_averages import F99
