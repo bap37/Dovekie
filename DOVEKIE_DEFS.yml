@@ -1,15 +1,15 @@
 ##Which surveys mcmc.py will investigate
 
 #The proper dovekie
-surveys_for_dovekie: ['PS1', 'ATLAS', 'DES', 'SDSS', 'Foundation']
-#surveys_for_dovekie: ['PS1', 'PS1SN', 'DES', 'SNLS', 'SDSS', 'CFA3K', 'CFA3S', 'CSP', 'CFA4P1', 'CFA4P2', 'D3YR', 'Foundation', 'ATLAS'] 
+#surveys_for_dovekie: ['PS1', 'ATLAS', 'DES', 'SDSS', 'Foundation']
+surveys_for_dovekie: ['PS1', 'PS1SN', 'DES', 'SNLS', 'SDSS', 'CFA3K', 'CFA3S', 'CSP', 'CFA4P1', 'CFA4P2', 'D3YR', 'Foundation', 'ATLAS'] 
 reference_surveys: ['PS1']
 
 #Dovekie wingspan
 #surveys_for_dovekie: ['SWIFT', 'KAIT1MO', 'KAIT2MO', 'KAIT3MO', 'KAIT4MO', 'NICKEL1MO', 'NICKEL2MO', 'KAIT3', 'KAIT4', 'NICKEL1', 'NICKEL2', 'ASASSN1', 'ASASSN2', 'PS1', 'PS1SN', 'DES', 'SNLS', 'SDSS', 'CSP', 'CFA3K', 'CFA3S', 'CFA4P2', 'CFA4P1']
 
 #Where the chains are saved to
-chainsfile: 'DOVEKIE.ATLAS_SFDMAP.npz'
+chainsfile: 'DOVEKIE.ATLAS.npz'
 
 #We use WDs from Boyd et al. 2024 to help constrain our zeropoints
 whitedwarf_obs_loc: 'spectra/bboyd/DA_WD_actual.csv'
@@ -153,7 +153,7 @@ shiftfiltss: [['g','r','i','z'],
               ['s','t','u','v'],
               ['g','r','i','z'],
               ['g', 'b', 'r'],
-              ['c0', 'o0', 'c1', 'o1', 'c2', 'o2', 'c3', 'o3','c4', 'o4', 'c5', 'o5', 'c6', 'o6', 'c7', 'o7'],
+              ['c0', 'o0', 'c1', 'o1', 'c2', 'o2', 'c3', 'o3','c4', 'o4', 'c5', 'o5', 'c6', 'o6', 'c7', 'o7', 'c8', 'o8'],
               ['g','r','i','z'],
               ['g','r','i','z'],
               ['u','g','r','i','V','B'],
@@ -178,7 +178,7 @@ namedfiltss: [['g','r','i','z'],
               ['B','V','r','i'],
               ['g','r','i','z'],
               ['g', 'b', 'r'],
-              ['c0', 'o0', 'c1', 'o1', 'c2', 'o2', 'c3', 'o3','c4', 'o4', 'c5', 'o5', 'c6', 'o6', 'c7', 'o7'],
+              ['c0', 'o0', 'c1', 'o1', 'c2', 'o2', 'c3', 'o3','c4', 'o4', 'c5', 'o5', 'c6', 'o6', 'c7', 'o7', 'c8', 'o8'],
               ['g','r','i','z'],
               ['g','r','i','z'],
               ['u','g','r','i','V','B'],
@@ -205,7 +205,7 @@ obsfiltss: [['g','r','i','z'],
             ['g','r','i','z'],
             ['g', 'b', 'r'],
             ['c0', 'o0', 'c1', 'o1', 'c2', 'o2', 'c3', 'o3',
-              'c4', 'o4', 'c5', 'o5', 'c6', 'o6', 'c7', 'o7'],
+              'c4', 'o4', 'c5', 'o5', 'c6', 'o6', 'c7', 'o7', 'c8', 'o8'],
             ['g','r','i','z'],
             ['g','r','i','z'],
             ['u','g','r','i','V','B'],
@@ -521,7 +521,7 @@ obsfilts: {'PS1':  ['g','r','i','z'],
            'CFA4P2': ['B','V','r','i'],
            'GAIA': ['g', 'b', 'r'],
            'ATLAS': ['c0', 'o0', 'c1', 'o1', 'c2', 'o2', 'c3', 'o3',
-                     'c4', 'o4', 'c5', 'o5', 'c6', 'o6', 'c7', 'o7',], 
+                     'c4', 'o4', 'c5', 'o5', 'c6', 'o6', 'c7', 'o7', 'c8', 'o8'], 
            'D3YR':  ['g','r','i','z'],
            'DEBASS':  ['g','r','i','z'],
            'SSS':  ['u','g','r','i','V','B'],
@@ -557,7 +557,7 @@ snanafilts: {'PS1': {'g':'g','r':'r','i':'i','z':'z'},
              'GAIA': {'g':'g', 'r':'r', 'b':'b'},
              'ATLAS': {'c0':'c0', 'o0':'o0', 'c1':'c1', 'o1':'o1', 'c2':'c2', 'o2':'o2',
                        'c3':'c3', 'o3':'o3', 'c0':'c0', 'o4':'o4', 'c5':'c5', 'o5':'o5', 
-                       'c6':'c6', 'o6':'o6', 'c7':'c7', 'o7':'o7'},
+                       'c6':'c6', 'o6':'o6', 'c7':'c7', 'o7':'o7', 'c8':'c8', 'o8':'o8'},
              'D3YR' : {'g':'g','r':'r','i':'i','z':'z'},
              'DEBASS': {'g':'g','r':'r','i':'i','z':'z'},
              'SSS': {'g':'g','r':'r','i':'i','B':'B','V':'V','u':'u'},
@@ -594,7 +594,7 @@ snanafiltsr: {'PS1': {'g':'g','r':'r','i':'i','z':'z'},
               'GAIA': {'g':'g', 'r':'r', 'b':'b'},
               'ATLAS': {'c0':'c0', 'o0':'o0', 'c1':'c1', 'o1':'o1', 'c2':'c2', 'o2':'o2',
                        'c3':'c3', 'o3':'o3', 'c4':'c4', 'o4':'o4', 'c5':'c5', 'o5':'o5',
-                       'c6':'c6', 'o6':'o6', 'c7':'c7', 'o7':'o7'},
+                       'c6':'c6', 'o6':'o6', 'c7':'c7', 'o7':'o7', 'c8':'c8', 'o8':'o8'},
               'D3YR' : {'g':'g','r':'r','i':'i','z':'z'},
               'DEBASS': {'g':'g','r':'r','i':'i','z':'z'},
               'SSS': {'g':'g','r':'r','i':'i','B':'B','V':'V','u':'u'},
@@ -701,7 +701,7 @@ filttranss: [['g_filt_tonry.txt','r_filt_tonry.txt','i_filt_tonry.txt','z_filt_t
              ['cfa4_B_p2_modtran.dat_weighted+-20', 'cfa4_V_p2_modtran.dat_weighted+20', 'cfa4_r_p2_modtran.dat_weighted+20', 'cfa4_i_p2_modtran.dat_weighted+20'],
              ['g_filt_revised.txt','r_filt_tonry.txt','i_filt_tonry.txt','z_filt_tonry.txt'],
              ['g.dat', 'b.dat', 'r.dat'],
-             ['cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat'],
+             ['cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat', 'cyan.dat', 'orange.dat'],
              ['DECam_g.dat','DECam_r.dat','DECam_i.dat','DECam_z.dat'],
              ['DEBASS_g.dat','DEBASS_r.dat','DEBASS_i.dat','DEBASS_z.dat'],
              ['u_CSP2_tel_ccd_atm_ext_1.2.dat','g_CSP2_tel_ccd_atm_ext_1.2.dat','r_CSP2_tel_ccd_atm_ext_1.2.dat','i_CSP2_tel_ccd_atm_ext_1.2.dat','V_CSP2_tel_ccd_atm_ext_1.2.dat','B_CSP2_tel_ccd_atm_ext_1.2.dat'],

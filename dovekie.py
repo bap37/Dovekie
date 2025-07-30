@@ -356,7 +356,6 @@ def calc_wd_chisq(paramsdict,whitedwarf_seds,whitedwarf_obs, storedvals=None):
 
         #Drops observed DA WD from surveys that are not in the list of calibrating surveys
         wdsurveys=np.unique([x.split('-')[0] for x in list(whitedwarf_obs) if '-' in x]).tolist()
-        print(wdsurveys)
         for _ in wdsurveys:
             if _ not in whitedwarf_seds.keys(): wdsurveys.remove(_)
         wdsurveys = np.array(wdsurveys)
@@ -727,12 +726,12 @@ def full_posterior(surveys_for_chisq, fixsurveynames,surveydata,obsdfs,reference
             filt2s.extend([      'g',      'r',      'i',      'B',      'V',     ])
 
         if "ATLAS" in surveys_for_chisq: #Shortened because of the 16 ATLAS filters
-            surv1s.extend(16*['PS1'])
-            surv2s.extend(16*['ATLAS'])
-            filtas.extend(16*['g']) #first filter for colour 
-            filtbs.extend(16*['i']) #second filter for colour
-            filt1s.extend(8*['g','r']) #PS1 magnitude band
-            filt2s.extend(['c0', 'o0', 'c1', 'o1',  'c2',   'o2',    'c3',    'o3', 'c4',    'o4',    'c5',    'o5',     'c6',   'o6',    'c7',  'o7',  ])
+            surv1s.extend(18*['PS1'])
+            surv2s.extend(18*['ATLAS'])
+            filtas.extend(18*['g']) #first filter for colour 
+            filtbs.extend(18*['i']) #second filter for colour
+            filt1s.extend(9*['g','r']) #PS1 magnitude band
+            filt2s.extend(['c0', 'o0', 'c1', 'o1',  'c2',   'o2',    'c3',    'o3', 'c4',    'o4',    'c5',    'o5',     'c6',   'o6',    'c7',  'o7', 'c8', 'o8' ])
 
 
     if 'GAIA' in reference_surveys: #Need to clean this up for the new GAIA stuff 
