@@ -1,11 +1,12 @@
 import astropy
 from astropy.io import fits
 import numpy as np
+import pandas as pd
 from glob import glob
 import os, sys
 from scipy import interpolate
 sys.path.insert(1, 'scripts/')
-from helpers import load_config
+from queryhelpers import *
 import argparse
 
 jsonload = "DOVEKIE_DEFS.yml"
@@ -65,13 +66,15 @@ if __name__ == '__main__':
               assert(key not in allfiles)
               allfiles[key]=data[key]
 
-  for ind, surv,kcorpath,kcor,shiftfilts,obsfilts in zip(
-        range(len(config['survs'])),config['survs'],config['kcorpaths'],config['kcors'],config['shiftfiltss'],config['obsfiltss']):
+  for ind, surv,kcorpath,filtpath,filters,obsfilts,kcor in zip(
+        range(len(config['survs'])),config['survs'],config['kcorpaths'],config['filtpaths'],config['filttranss'],config['obsfiltss'], config['kcors']):
     print(ind,surv)
     if ind != float(index): continue
       
     if kcorpath[-1] == '/': kcorpath=kcorpath[:-1]
     
+    filtdict = kcor_to_offset(kcorpath+'/'+kcor)
+
     #for shift in np.arange(-30,40,10):
     for shift in shifts:
       version = surv
@@ -112,43 +115,21 @@ if __name__ == '__main__':
             x.write(str(co)+' '+str(interp(co))+'\n')
           x.close()
 
-          filename2='textfiles/%s.txt'%ngslf
-          x=open(filename2,'w')
-          for co in range(0,len(allfiles['wave'])):
-            x.write(str(allfiles['wave'][co])+' '+str(allfiles[key][entry,:][co])+'\n')
-          x.close()
+          fluxfile = pd.read_csv('%s/fillme_%s.dat'%(kcorpath,surv), sep=r"\s+", names=['wav', 'flux'])
 
-          filtshiftstring = ' FILTER_LAMSHIFT '
-          for filt in shiftfilts:
-            filtshiftstring += ' '+filt+' '+str(shift)+' '
-          try:
-            print('kcor.exe %s/%s %s OUTFILE %s/.in_%s.fits%s BD17_SED %s/fillme_%s.dat > logs/kcor_%s.log'%(kcorpath,kcor,filtshiftstring,kcorpath,surv,parallel,kcorpath,surv,surv))
-            os.system('kcor.exe %s/%s %s OUTFILE %s/.in_%s.fits%s BD17_SED %s/fillme_%s.dat > logs/kcor_%s.log'%(kcorpath,kcor,filtshiftstring,kcorpath,surv,parallel,kcorpath,surv,surv))
-          except:
-            print('this ^^^ spectrum failed kcor')
-            continue
+          sampling = fluxfile['wav']
+          #sampling = np.arange(4500, 12000, 10)
         
-          g=open('logs/kcor_%s.log'%(surv),'r').readlines()
-          vals=['99' for n in range(len(obsfilts))]
-          searchsurv = surv
-          print(surv)
-          for gg in g:
-            for iii, obsf in enumerate(obsfilts):
-              searchsurv = clean_surveys(surv)
-              if (f'{searchsurv}-{obsf}' in gg):
-                if ('BD17' in gg.split()[2]):
-                  try:
-                    vals[iii]=gg.split()[6]
-                  except:
-                    vals[0] == 99
-          print(vals)
-          vals = np.array(vals).astype(float); vals = -1*vals ;
-          if 'ASASSN' in version: version = "ASASSN";
-          if vals[0]!='99':
-            bd.write(' '.join([surv,version,ngslf,str(round(shift,4)),'']))
-            bd.write(' '.join(vals.astype(str))+'\n')
-          os.remove(filename1)
-          os.remove(filename2)
+          band_weights, zps = prep_filts(sampling, filters, filtpath, isgaia = False, shift=shift)
+        
+          seds = get_model_mag(fluxfile['flux'],band_weights, zps)
+
+          for _,filt in enumerate(obsfilts):
+            offsetval = filtdict[surv+'-'+filt]
+            seds[_] -= offsetval
+
+          bd.write(' '.join([surv,version,ngslf,str(round(shift,4)),'']))
+          bd.write(" ".join(str(item) for item in seds)+'\n')
   bd.close()
   print("The magnitudes you saw may appear to have been negative. They should have been written out as positive values.")
     
