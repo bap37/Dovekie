@@ -152,6 +152,9 @@ def get_all_obsdfs(surveys, redo=False, fakes=False):
                     obsdf = pd.read_csv(f'{fakes}/{survname}_observed.csv')
                 else:
                     obsdf = pd.read_csv(f'{realdirname}+AV/{survname}_observed.csv', nrows=5000)
+                    for key in list(obsdf):
+                        if "_AV" in key: obsdf[key] = 0
+                        print("temporarily setting all MWEBV corrections to 0")
                     obsdf = obsdf[(obsdf['PS1-g']-obsdf['PS1-g_AV']-obsdf['PS1-i']+obsdf['PS1-i_AV'])<1.]
                     obsdf = obsdf[(obsdf['PS1-g']-obsdf['PS1-g_AV']-obsdf['PS1-i']+obsdf['PS1-i_AV'])>.25]
                     obsdf = obsdf[obsdf['PS1-g']-obsdf['PS1-g_AV']>14.3] #from dan via eddy schlafly
@@ -892,18 +895,18 @@ def lnprior(paramsdict):
         'PS1':[0,.01],
         'PS1SN':[0,.01],
         'Foundation':[0,0.01],
-        'CFA3S':[0,0.1],
-        'CFA3K':[0,0.1],
-        'CFA4P1':[0,0.1],
-        'CFA4P2':[0,0.1],
-        'CSP':[0,0.1],
+        'CFA3S':[0,0.03],
+        'CFA3K':[0,0.03],
+        'CFA4P1':[0,0.03],
+        'CFA4P2':[0,0.03],
+        'CSP':[0,0.03],
         'SNLS':[0,0.01],
         'SDSS':[0,0.01],
         'DES':[0,.01],
         'D3YR':[0,.01],
         'DEBASS':[0,.01],
-        'SSS':[0,0.1],
-        'ATLAS':[0,0.1]
+        'SSS':[0,0.03],
+        'ATLAS':[0,0.03]
         }    
 
     lp = 0
@@ -948,11 +951,11 @@ def plot_forone(result,subscript, outputdir,tableout,biasestimates):
         ax.set_ylabel(f'{result.obslongfilt1} - {result.obslongfilt2}', alpha=0.8)
 
         labels = np.quantile(result.datax, np.arange(0, 1.1, 0.2))
-        ax.set_xticks(ticks=labels)
-        ax.set_xticklabels(np.around(labels,2), rotation=90)
+        #ax.set_xticks(ticks=labels)
+        #ax.set_xticklabels(np.around(labels,2), rotation=90)
         labels = np.quantile(result.datay, np.arange(0, 1.1, 0.2))
-        ax.set_yticks(ticks=labels)
-        ax.set_yticklabels(labels=np.around(labels,2))
+        #ax.set_yticks(ticks=labels)
+        #ax.set_yticklabels(labels=np.around(labels,2))
         for speen in ['right', 'top', 'left', 'bottom']: #hehe speen
             ax.spines[speen].set_visible(False)
 
