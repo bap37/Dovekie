@@ -57,7 +57,7 @@ if __name__ == '__main__':
   if args.SHIFT != "None":
     shifts = [int(args.SHIFT)]
   else:
-    shifts = int(0)
+    shifts = [int(0)]
 
 ##########################
 
