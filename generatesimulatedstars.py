@@ -226,6 +226,7 @@ class survey:
         #Use factor analysis on observed data
         _,_,self.slopes_data,noise,self.intrinsic_data,fout=decomposedata(data,magcolorinds,outlierwidth)
         self.variance=noise**2
+        print(f'g-i scatter: {np.sqrt(self.variance[0]+self.variance[1])}')
         self.fout=fout
         #If it's a PS1 survey, the synthetic photometry will be identical to PS1, so don't regress on identical data
         if self.isps1survey: 
@@ -309,15 +310,15 @@ def generatesurveyoffsets():
     
     name='CFA3K'
     filts=[name+x for x in 'BVri']
-    survoffsets[name]= np.random.normal(0,0.01,len(filts))
+    survoffsets[name]= np.random.normal(0,0.03,len(filts))
     
     name='CFA3S'
     filts=[name+x for x in 'BVRI']
-    survoffsets[name]= np.random.normal(0,0.01,len(filts))
+    survoffsets[name]= np.random.normal(0,0.03,len(filts))
     
     name='CSP'
     filts=[name+x for x in 'BVgri']
-    survoffsets[name]= np.random.normal(0,0.01,len(filts))
+    survoffsets[name]= np.random.normal(0,0.03,len(filts))
     
     name='Foundation'
     filts=[name+x for x in 'griz']
@@ -394,15 +395,15 @@ def generatesurveyoffsets():
 
     name='NICKEL2'
     filts=[name+x for x in 'BVRI']
-    survoffsets[name]= np.random.normal(0,0.01,len(filts))
+    survoffsets[name]= np.random.normal(0,0.03,len(filts))
 
     name='CFA4P1'
     filts=[name+x for x in 'BVri']
-    survoffsets[name]= np.random.normal(0,0.01,len(filts))
+    survoffsets[name]= np.random.normal(0,0.03,len(filts))
 
     name='CFA4P2'
     filts=[name+x for x in 'BVri']
-    survoffsets[name]= np.random.normal(0,0.01,len(filts))
+    survoffsets[name]= np.random.normal(0,0.03,len(filts))
 
 
     return survoffsets
@@ -413,7 +414,7 @@ def generatesurvey(name,survoffsets,forcereload=False,speclibrary='calspec23'):
         print(f'Retrieving {name} from cache', flush=True)
         return __surveycache__[name]
     ps1synth=loadsynthphot('output_synthetic_magsaper/synth_PS1_shift_0.000.txt')
-    cut=(ps1synth['standard_catagory']==speclibrary)& ( ps1synth['PS1g']-ps1synth['PS1r'] > 0) &(ps1synth['PS1g']-ps1synth['PS1r'] <.8)
+    cut=(ps1synth['standard_catagory']==speclibrary)& ( ps1synth['PS1g']-ps1synth['PS1i'] > .25 ) &(ps1synth['PS1g']-ps1synth['PS1i'] <1.6)
     print(f'Preparing {name}', flush=True)
     
     if name=='SNLS':
@@ -642,7 +643,7 @@ def generatewhitedwarfs(survoffsets):
 
 def getsurveygenerators(*args,**kwargs):
 
-    names='SNLS','SDSS','CFA3K','CFA3S','CSP','DES','Foundation','PS1SN', "CFA4P1", "CFA4P2" ,'ZTFS', 'ZTFD', 'D3YR'
+    names='SNLS','SDSS','CFA3K','CFA3S','CSP','DES','Foundation','PS1SN', "CFA4P1", "CFA4P2" ,'D3YR'#'ZTFS', 'ZTFD', 'D3YR'
     #names ='SWIFT', 'KAIT1MO', 'KAIT2MO', 'KAIT3MO', 'KAIT4MO', 'NICKEL1MO', 'NICKEL2MO', 'KAIT3', 'KAIT4', 'NICKEL1', 'NICKEL2', 'ASASSN1', 'ASASSN2', 'PS1', 'PS1SN', 'DES', 'SNLS', 'SDSS', 'CSP', 'CFA3K', 'CFA3S', 'CFA4P2', 'CFA4P1'
     #names='ZTFD','ZTFS'
     for name in names:
