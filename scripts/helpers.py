@@ -38,12 +38,13 @@ def prep_config(config):
     relativeweights = config['relativeweights']
     errfloors = config['errfloors']
     whitedwarf_obs_loc = config['whitedwarf_obs_loc']
-    return survmap, survmap4shift, survfiltmap, obssurvmap, revobssurvmap, revobssurvmapforsnana, survcolormin, survcolormax, synth_gi_range, obsfilts, snanafilts, snanafiltsr, relativeweights, errfloors,  config['target_acceptance'] , config['n_burnin'], whitedwarf_obs_loc
+    dustlaw = config['dustlaw']
+    return survmap, survmap4shift, survfiltmap, obssurvmap, revobssurvmap, revobssurvmapforsnana, survcolormin, survcolormax, synth_gi_range, obsfilts, snanafilts, snanafiltsr, relativeweights, errfloors,  config['target_acceptance'] , config['n_burnin'], whitedwarf_obs_loc, dustlaw
 
 
 jsonload = 'DOVEKIE_DEFS.yml' #where all the important but unwieldy dictionaries live
 config = load_config(jsonload)
-survmap, survmap4shift, survfiltmap, obssurvmap, revobssurvmap, revobssurvmapforsnana, survcolormin, survcolormax, synth_gi_range, obsfilts, snanafilts, snanafiltsr, relativeweights, errfloors,target_acceptance , n_burnin, bboyd_loc = prep_config(config)
+survmap, survmap4shift, survfiltmap, obssurvmap, revobssurvmap, revobssurvmapforsnana, survcolormin, survcolormax, synth_gi_range, obsfilts, snanafilts, snanafiltsr, relativeweights, errfloors,target_acceptance , n_burnin, bboyd_loc, dustlaw = prep_config(config)
 
 filter_means = pd.read_csv('filter_means.csv') 
 
@@ -60,7 +61,10 @@ def getoffsetforuniversalslope(surv,filt,slope,meanlambda):
 def query_irsa(row,col='NA'):
     newrow = row
     coo = coord.SkyCoord(row['RA']*u.deg,row['DEC']*u.deg, frame='icrs')
-    table = IrsaDust.get_extinction_table(coo)
+    try:
+        table = IrsaDust.get_extinction_table(coo)
+    except:
+        return [-999]*len(row)
     aa = np.argsort(table['LamEff'])
     avinterp = interpolate.interp1d(table['LamEff'][aa]*10000,table['A_SandF'][aa])
     rs = col.replace('_4shooter','S').replace('_keplercam','K').split('-')[0]
@@ -76,10 +80,126 @@ def get_extinction(survdict):
             correctedmags[col+'_AV'] = survdict.apply(query_irsa,col=col,axis=1)
     return correctedmags
 
+
+def query_ebv_map(ra_array, dec_array, mapname, ebvmaps):
+    """returns ebv values from input map for input arrays of ra and dec. if mapname is invalid, prints available maps"""
+    #Created by MaKenzie Elliot
+
+    import numpy as np
+    import healpy as hp
+    from astropy.coordinates import SkyCoord
+    import astropy.units as u
+
+    ebvs = np.load("/filepath/ebvmaps.npz")
+    dustmaps = ebvs.files
+
+    
+    available_maps = ['csfd', 'lenzhi', 'chenghi', 'desi_gr', 'desi_rz', 'mudur_6', 'mudur_15']
+    equatorial_maps = ['desi_gr', 'desi_rz']
+
+    # if msapname invalid return mapname options
+    if (mapname is None) or (mapname.lower() == 'help') or (mapname not in available_maps):
+        print("Available dust maps:")
+        for name in available_maps:
+            print(f"  • {name}")
+        print("Please specify one of the map names above as `mapname`.")
+        return None
+
+    # set map and nside
+    ebvmap = ebvmaps[mapname]
+    nside = hp.npix2nside(ebvmap.size)
+
+    # ensure numpy arrays
+    ra_array = np.asarray(ra_array)
+    dec_array = np.asarray(dec_array)
+
+    # determine azi and alt, ensure using correct coords for given map
+    if mapname in equatorial_maps:
+        azi, alt = ra_array, dec_array
+        
+    else:
+        coords = SkyCoord(ra=ra_array*u.deg, dec=dec_array*u.deg, frame='icrs')
+        azi = coords.galactic.l.deg
+        alt = coords.galactic.b.deg
+
+    # query map for ebv values
+    hpix = hp.ang2pix(nside, azi, alt, lonlat=True)
+    ebv_vals = ebvmap[hpix]
+
+    return ebv_vals
+
+def sort_dustlaw(dustlaw):
+    if dustlaw == "F99":
+        from dust_extinction.parameter_averages import F99
+        mod = F99(Rv=3.1)
+    elif dustlaw == "G23":
+        from dust_extinction.parameter_averages import G23
+        mod = G23(Rv=3.1)
+    elif dustlaw == "CCM89":
+        from dust_extinction.parameter_averages import CCM89
+        mod = CCM89(Rv=3.1)
+    elif dustlaw == "O94":
+        from dust_extinction.parameter_averages import O94
+        mod = O94(Rv=3.1)
+    elif dustlaw == "F04":
+        from dust_extinction.parameter_averages import F04
+        mod = F04(Rv=3.1)
+    elif dustlaw == "VCG04":
+        from dust_extinction.parameter_averages import VCG04
+        mod = VCG04(Rv=3.1)
+    elif dustlaw == "GCC09":
+        from dust_extinction.parameter_averages import GCC09
+        mod = GCC09(Rv=3.1)
+    elif dustlaw == "M14":
+        from dust_extinction.parameter_averages import M14
+        mod = M14(Rv=3.1)
+    return mod
+
+
+def get_extinction_local(df, survey):
+    #get names correct
+    filter_root = obssurvmap[survey] ; obs_filts = obsfilts[survey]
+
+    #load only what filters/information we are interested in
+    survey_filts = [filter_root+'-'+filt for filt in obs_filts]
+    to_collect = survey_filts + ['PS1-g', 'PS1-r', 'PS1-i', 'PS1-z', 'RA', 'DEC']
+    to_collect.insert(0, 'survey')
+    df = df[to_collect]
+
+    #prepare filters to get lambda effective
+    to_collect = to_collect[1:-2] ; filt_labels = [f.replace('-','') for f in to_collect]
+
+    #load in SFDmap
+    import sfdmap
+    import extinction
+    m = sfdmap.SFDMap('sfddata-master/')
+    ebv = m.ebv(df.RA.values, df.DEC.values)
+
+    #load dustlaw model
+    dustmodel = sort_dustlaw(dustlaw)
+
+    waveeffs = [filter_means[fb] for fb in filt_labels]
+
+    #prepare column names for the df that will contain all the AV corrections 
+    future_df = np.copy(to_collect) ; future_df = [lab+"_AV" for lab in future_df]
+
+    for e in ebv:
+        # Unfortunately this package uses inverse wavelengths, in microns (scream)
+        rowval = (e*3.1)*dustmodel(10000.0/np.array(waveeffs))
+        future_df = np.vstack( (future_df, rowval) )
+
+    #create dataframe with the labels, convert from string to float (????)
+    future_df = pd.DataFrame(data=future_df[1:,:], columns=future_df[0,:]) 
+    future_df = future_df.apply(pd.to_numeric)
+    
+    dfM = pd.concat([df, future_df], axis=1)
+
+    return dfM
+
+
 def myround(x, base=5):
     return base * round(x/base)
-    
-    
+        
 def itersigmacut_linefit_jax(x,y,cut,niter=3,nsigma=4):
     returnx = x
     returny = y
@@ -159,10 +279,15 @@ def create_cov(labels, flat_samples, version):
     np.savez(f'DOVEKIE_COV_{version}.0.npz',cov=cov,labels=labels)
     fig, ax = plt.subplots(figsize=(14, 12))
 
+    #words = [w.replace('[br]', '<br />') for w in words]
+    labels = [lab.replace("CSP-m", "CSP-V1") for lab in labels]
+    labels = [lab.replace("CSP-n", "CSP-V2") for lab in labels]
+    labels = [lab.replace("CSP-o", "CSP-V3") for lab in labels]
+
     plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = True
     plt.rcParams['xtick.top'] = plt.rcParams['xtick.labeltop'] = False
 
-    im = ax.matshow(cov, cmap='cet_CET_CBL1')
+    im = ax.matshow(cov, cmap='cet_CET_CBL1', vmax = 0.3e-4)
     
     cax = plt.axes((0.9, 0.1, 0.025, 0.89)) #x,y, widht, height
     

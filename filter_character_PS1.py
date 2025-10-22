@@ -21,7 +21,7 @@ def get_args():
   parser.add_argument("--SURVEY", help=msg, type=int, default=-9)
 
   msg = 'Default -9. If unspecified, will not shift any filters. If specified, please use something corresponding to "np.arange(minval, maxval, binsize)" where you fill out the argument appropriately. \nIn command line, proper quotations around the np.arange are very important!'
-  parser.add_argument("--SHIFT", help=msg, type=str, default="-999999")
+  parser.add_argument("--SHIFT", help=msg, type=str, default="None")
   args = parser.parse_args()
   return args
 
@@ -54,10 +54,10 @@ if __name__ == '__main__':
   else:
     index = args.SURVEY
 
-  if args.SHIFT != "-999999":
+  if args.SHIFT != "None":
     shifts = [int(args.SHIFT)]
   else:
-    shifts = [0]
+    shifts = [int(0)]
 
 ##########################
 

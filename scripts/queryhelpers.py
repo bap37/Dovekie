@@ -59,7 +59,7 @@ def f_lam(l):
     return f
 
 def prep_filts(sampling, filters, filtpath, isgaia=True, shift=0):
-
+    print(filters, filtpath)
     wav = sampling #sampling 
     band_weights=[]
     zps=[]

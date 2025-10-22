@@ -4,7 +4,7 @@
 SN_SED: Hsiao07.dat
 
 # specify primary spectrum
-BD17_SED: /project2/rkessler/SURVEYS/SDSS/USERS/BAP37/ZTF_CAL/kcor/CFA3_KEPLERCAM/fillme.dat
+BD17_SED:     bd_17d4708_stisnic_007.dat
 
 # specify filters :  
 MAGSYSTEM: BD17
@@ -36,5 +36,5 @@ AV_OPTION:   2   [1 => use AV at avg lambda in filter  (with CCM89)]
 LAMBDA_RANGE: 2100 11300
 
 # define output file for kcor grid
-OUTFILE: .kcor_CFA3_KEPLERCAM_BD17.fits
+OUTFILE: kcor_CFA3K.fits
 

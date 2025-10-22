@@ -13,7 +13,7 @@ xx = (t['oldPS1_g']>10) &(t['oldPS1_r']>10) &(t['oldPS1_i']>10) & (t['oldPS1_z']
 
 colnames = ['%s-g'%system,'%s-r'%system,'%s-i'%system,'%s-z'%system,
             'PS1-g','PS1-r','PS1-i','PS1-z','RA','DEC']
-collists = [t['gMeanPSFMag'][xx],t['rMeanPSFMag'][xx],t['iMeanPSFMag'][xx],t['zMeanPSFMag'][xx],
+collists = [t['oldPS1_g'][xx],t['oldPS1_r'][xx],t['oldPS1_i'][xx],t['oldPS1_z'][xx],
             t['gMeanApMag'][xx],t['rMeanApMag'][xx],t['iMeanApMag'][xx],t['zMeanApMag'][xx],
             t['raMean'][xx],t['decMean'][xx]]
 outfile = 'output_observed_apermags/'+system+'_observed.csv'

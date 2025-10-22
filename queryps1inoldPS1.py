@@ -210,15 +210,15 @@ def resolve(name):
 
 
 #d = pd.read_csv('catalog/D5_release_ab_v3_2.csv',comment='#',delim_whitespace=True)
-dg = pd.read_csv('newcatalog/dougpv2_g_sample.txt',delim_whitespace=True,comment='#')
+dg = pd.read_csv('rawstars/dougpv2_g_sample.txt',delim_whitespace=True,comment='#')
 dg['RADEC']=dg['RA'].round(3).astype(str)+'_'+dg['DEC'].round(3).astype(str)
-dr = pd.read_csv('newcatalog/dougpv2_r_sample.txt',delim_whitespace=True,comment='#')
+dr = pd.read_csv('rawstars/dougpv2_r_sample.txt',delim_whitespace=True,comment='#')
 dr['RADEC']=dr['RA'].round(3).astype(str)+'_'+dr['DEC'].round(3).astype(str)
 df = pd.merge(dg,dr,on='RADEC',suffixes=('_g','_r'))
-di = pd.read_csv('newcatalog/dougpv2_i_sample.txt',delim_whitespace=True,comment='#')
+di = pd.read_csv('rawstars/dougpv2_i_sample.txt',delim_whitespace=True,comment='#')
 di['RADEC']=di['RA'].round(3).astype(str)+'_'+di['DEC'].round(3).astype(str)
 df = pd.merge(df,di,on='RADEC',suffixes=('','_i'))
-dz = pd.read_csv('newcatalog/dougpv2_z_sample.txt',delim_whitespace=True,comment='#')
+dz = pd.read_csv('rawstars/dougpv2_z_sample.txt',delim_whitespace=True,comment='#')
 dz['RADEC']=dz['RA'].round(3).astype(str)+'_'+dz['DEC'].round(3).astype(str)
 d = pd.merge(df,dz,on='RADEC',suffixes=('','_z'))
 

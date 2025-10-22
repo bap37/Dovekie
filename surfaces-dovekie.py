@@ -7,6 +7,8 @@ sys.path.insert(1, 'scripts/')
 from helpers import *
 import shutil
 
+for_DES = False
+
 #/project2/rkessler/SURVEYS/PS1MD/USERS/dscolnic/PANTHEON+/kcor/fragilistic_cov_template_filler
 #OG comes from around here
 
@@ -188,7 +190,7 @@ def WRITE_ACTUAL(params, labels, OUTDIR, n, config):
          surv = labels[n].split("-")[0]
          if surv == "PS1":
             continue
-         if surv == 'D3YR': continue
+#         if surv == 'DES': continue #toggle if you're doing P+ or DES
          if surv == "PS1SN": surv = "PS1MD"
          if "CFA4" in surv: surv = surv.replace("P", "p")
          survband = labels[n]
