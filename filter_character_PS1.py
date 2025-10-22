@@ -21,7 +21,7 @@ def get_args():
   parser.add_argument("--SURVEY", help=msg, type=int, default=-9)
 
   msg = 'Default -9. If unspecified, will not shift any filters. If specified, please use something corresponding to "np.arange(minval, maxval, binsize)" where you fill out the argument appropriately. \nIn command line, proper quotations around the np.arange are very important!'
-  parser.add_argument("--SHIFT", help=msg, type=str, default="-9")
+  parser.add_argument("--SHIFT", help=msg, type=str, default="-999999")
   args = parser.parse_args()
   return args
 
@@ -54,7 +54,7 @@ if __name__ == '__main__':
   else:
     index = args.SURVEY
 
-  if args.SHIFT != "-9":
+  if args.SHIFT != "-999999":
     shifts = [int(args.SHIFT)]
   else:
     shifts = [0]
@@ -94,7 +94,7 @@ if __name__ == '__main__':
         hdul=fits.open(ngslf)
         print(ngslf)
 
-        x=open('%s/fillme_%s.dat'%(kcorpath,surv),'w')
+        #x=open('%s/fillme_%s.dat'%(kcorpath,surv),'w')
         f = interpolate.interp1d(hdul[1].data.WAVELENGTH,hdul[1].data.FLUX)
         w = [0]
         f = [0.0]
@@ -111,19 +111,25 @@ if __name__ == '__main__':
           f.append(lastf+slope*(12500-lastw))
         interp = interpolate.interp1d(w,f)
         
-        for co in xr[:-10]:
-          x.write(str(co)+' '+str(interp(co))+'\n')
-        x.close()
+        wav = xr[:-10]
+        flux = interp(wav) 
+        # for co in xr[:-10]:
+        #   x.write(str(co)+' '+str(interp(co))+'\n')
+        # x.close()
 
         #reopen x here and load in to hand off to the integrator
-        fluxfile = pd.read_csv('%s/fillme_%s.dat'%(kcorpath,surv), sep=r"\s+", names=['wav', 'flux'])
-
+        # fluxfilename = '%s/fillme_%s.dat'%(kcorpath,surv)
+        # print(fluxfilename)
+        # fluxfile = pd.read_csv(fluxfilename, sep=r"\s+", names=['wav', 'flux'])
+        fluxfile = pd.DataFrame()
+        fluxfile['wav'] = wav
+        fluxfile['flux'] = flux
         sampling = fluxfile['wav']
         #sampling = np.arange(4500, 12000, 10)
         
-        band_weights, zps = prep_filts(sampling, filters, filtpath, isgaia = False)
+        band_weights, zps = prep_filts(sampling, filters, filtpath, isgaia = False, shift=shift)
         
-        seds = get_model_mag(fluxfile['flux'],band_weights, zps)
+        seds = get_model_mag(fluxfile['flux'],band_weights, zps,)
 
         for _,filt in enumerate(obsfilts):
           offsetval = filtdict[surv+'-'+filt]

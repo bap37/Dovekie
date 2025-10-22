@@ -6,7 +6,7 @@ from scipy.integrate import simpson
 from gaiaxpy import plot_spectra
 import matplotlib.pyplot as plt
 import yaml, os
-
+import sys
 
 import astropy.units as u
 from astropy.coordinates import SkyCoord
@@ -73,10 +73,16 @@ def prep_filts(sampling, filters, filtpath, isgaia=True, shift=0):
         R[:,0] += shift
         lam = R[:, 0] 
         R[:,1]*=lam
-
-        min_id=np.argmin((wav-np.min(R[:,0]))**2)
-        max_id=np.argmin((wav-np.max(R[:,0]))**2)
-    
+        try:
+            min_id=np.argmin((wav-np.min(R[:,0]))**2)
+            max_id=np.argmin((wav-np.max(R[:,0]))**2)
+        except Exception as e:
+            print(filtpath,file=sys.stderr)
+            print(filt,file=sys.stderr)
+            print(R,file=sys.stderr)
+            print(T,file=sys.stderr)
+            print(wav,file=sys.stderr)
+            raise e
         #T[min_id:max_id]= np.interp(wav[min_id:max_id], R[:, 0], R[:, 1])
         T = np.interp(wav, R[:, 0], R[:, 1], left=0, right=0)
 
