@@ -22,7 +22,12 @@ def get_args():
 
   msg = 'Default -9. If unspecified, will not shift any filters. If specified, please use something corresponding to "np.arange(minval, maxval, binsize)" where you fill out the argument appropriately. \nIn command line, proper quotations around the np.arange are very important!'
   parser.add_argument("--SHIFT", help=msg, type=str, default="None")
+
+  msg = "skew factor applied to filter. Alternative to shift. See Equation 8 of Dovekie."
+  parser.add_argument("--TILT", help=msg, type=str, default="None")
+
   args = parser.parse_args()
+
   return args
 
 def clean_surveys(surv):
@@ -55,9 +60,21 @@ if __name__ == '__main__':
     index = args.SURVEY
 
   if args.SHIFT != "None":
-    shifts = [int(args.SHIFT)]
+    mods = [int(args.SHIFT)]
   else:
-    shifts = [int(0)]
+    mods = [int(0)]
+
+  mod_type = "shift"
+
+  if args.TILT != "None":
+    if len(mods) > 1:
+      print("Cannot do shifts and tilts simultaneously.")
+      sys.exit()
+    else:
+      mods= [int(args.TILT)]
+      mod_type = "tilt"
+  else:
+    mods = [int(0)] 
 
 ##########################
 
@@ -71,9 +88,9 @@ if __name__ == '__main__':
     filtdict = kcor_to_offset(kcorpath+'/'+kcor)
     
     #for shift in np.arange(-30,40,10):
-    for shift in shifts:
+    for mod in mods:
       version = surv
-      print(f'starting shift = {shift}')
+      print(f'starting {mod_type} = {mod}')
 
       ngsl_files = glob('spectra/stis_ngsl_v2/*.fits')#[:5]
       dillon_calspec_files = glob('spectra/calspec23/*.fits')
@@ -81,8 +98,8 @@ if __name__ == '__main__':
       allfiles.extend(dillon_calspec_files)
       speccats = [fn.split('/')[1] for fn in allfiles]
 
-      bd=open('output_synthetic_magsaper/synth_%s_shift_%s.000.txt'%(surv,shift),'w')
-      bd.write(' '.join(['survey','version','standard','standard_catagory','shift','']))
+      bd=open('output_synthetic_magsaper/synth_%s_%s_%s.000.txt'%(surv,mod_type,mod),'w')
+      bd.write(' '.join(['survey','version','standard','standard_catagory',mod_type,'']))
       for fff in obsfilts:
           if surv == 'CSP':
               bd.write(version+'_TAMU-'+fff+' ')
@@ -92,7 +109,6 @@ if __name__ == '__main__':
 
       for ngslf,cat in zip(allfiles,speccats):
         hdul=fits.open(ngslf)
-        print(ngslf)
 
         #x=open('%s/fillme_%s.dat'%(kcorpath,surv),'w')
         f = interpolate.interp1d(hdul[1].data.WAVELENGTH,hdul[1].data.FLUX)
@@ -127,7 +143,7 @@ if __name__ == '__main__':
         sampling = fluxfile['wav']
         #sampling = np.arange(4500, 12000, 10)
         
-        band_weights, zps = prep_filts(sampling, filters, filtpath, isgaia = False, shift=shift)
+        band_weights, zps = prep_filts(sampling, filters, filtpath, isgaia = False, shift=mod, mod_type=mod_type)
         
         seds = get_model_mag(fluxfile['flux'],band_weights, zps,)
 
@@ -138,7 +154,7 @@ if __name__ == '__main__':
         print(filters)
         print(seds)
 
-        bd.write(' '.join([surv,version,ngslf,cat,str(round(shift,3)),'']))
+        bd.write(' '.join([surv,version,ngslf,cat,str(round(mod,3)),'']))
         bd.write(" ".join(str(item) for item in seds)+'\n')
       bd.close()
   print("The magnitudes you saw may appear to have been negative. They should have been written out as positive values.")
