@@ -43,6 +43,7 @@ NREAL = 10
 jsonload = 'DOVEKIE_DEFS.yml' 
 config = load_config(jsonload)
 
+
 def get_args():
    parser = argparse.ArgumentParser()
 
@@ -57,6 +58,9 @@ def get_args():
    msg = """Name of the output directory.  """
    parser.add_argument("--OUTDIR", help=msg, type=str)
 
+   msg = """ Factor by which the MAG/WAV SHIFT values are adjusted for testing. NOT 1/N """
+   parser.add_argument("--NFACTOR", help=msg, type=float, default=1)
+
    msg = "Temporary placeholder for further development. Default False."
    parser.add_argument("--FULL", help=msg, action="store_true")
    parser.set_defaults(FULL=False)
@@ -69,8 +73,9 @@ def prep_config(args):
    COV = args.COV
    FULL = args.FULL
    OUTDIR = args.OUTDIR
-  
-   return OFFSETS, FULL, COV, OUTDIR
+   FACTOR = args.NFACTOR
+
+   return OFFSETS, FULL, COV, OUTDIR, FACTOR
 
 #These two appear to set kcor information. Commented out for the moment. 
 ###################
@@ -207,7 +212,7 @@ def WRITE_ACTUAL(params, labels, OUTDIR, n, config):
 #         if surv == "D3YR": surv = "DES"
          if surv == "Foundation":
             surv = "FOUNDATION" ; survband = survband.replace("Foundation", "PS1")
-         buildstr = f'MAGSHIFT {surv} {survband.replace("D3YR", "DES")} {np.around(params[n], 3)}' #hacky ugly
+         buildstr = f'MAGSHIFT {surv} {survband.replace("D3YR", "DES")} {np.around(params[n]/FACTOR, 3)}' #hacky ugly
          filew.write(buildstr+'\n')
       filew.write("\n")
       for n in range(len(labels)):
@@ -233,14 +238,14 @@ def WRITE_ACTUAL(params, labels, OUTDIR, n, config):
          if surv == 'ZTF': surv = "ZTF_MSIP"
          if surv == "Foundation":
             surv = "FOUNDATION" ; survbandwrite = survbandwrite.replace("Foundation", "PS1")
-         buildstr = f'WAVESHIFT {surv} {survbandwrite} {np.around(np.random.normal(0,waveval),3)}'
+         buildstr = f'WAVESHIFT {surv} {survbandwrite} {np.around(np.random.normal(0,waveval/FACTOR),3)}'
          filew.write(buildstr+'\n')
    return print(f"Done writing this iteration of SALTShaker Training files at {OUTDIR}")
         
 if __name__ == "__main__":
    
    args = get_args()
-   OFFSETS, FULL, COV, OUTDIR = prep_config(args)
+   OFFSETS, FULL, COV, OUTDIR, FACTOR = prep_config(args)
    if not (os.path.exists(OFFSETS) | os.path.exists(COV)):
       print(f'You gave {OFFSETS} and {COV}, but this file does not exist. Quitting.')
       quit()
