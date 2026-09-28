@@ -16,7 +16,10 @@ out.write('SURVEYFILTER,MEANLAMBDA \n')
 
 for fp,fts,ofs,surv in zip(config['filtpaths'],config['filttranss'],config['obsfiltss'],config['survs']):
     for ft,of in zip(fts,ofs):
-        d = pd.read_csv(fp+'/'+ft,names=['wavelength', 'trans'],sep=r'\s+',comment='#')
+        try:
+            d = pd.read_csv(fp+'/'+ft,names=['wavelength', 'trans'],sep=r'\s+',comment='#')
+        except FileNotFoundError:
+            continue
         #print(d['wavelength'],d['trans'])
         print(ft,round(np.average(d['wavelength'],weights=d['trans'])))
         out.write(surv+str(of)+','+str(round(np.average(d['wavelength'],weights=d['trans'])))+'\n')

@@ -104,6 +104,8 @@ slopes,errs,synth_slopes,offsets,offseterrs,trueoffsets,pval,inputlib,chi2=list(
 # In[8]:
 
 print(f"Mean chi2: {np.mean(chi2):.1f}")
+print(f'Chi2 percentiles: {np.percentile(chi2,[5,16,50,84,95])}')
+
 slopelabels=np.char.add(np.char.add(result['OFFSETSURV'],'-'),result['OFFSETFILT2']) 
 offsetlabels=np.char.replace(outfile['labels'],'_offset','')
 

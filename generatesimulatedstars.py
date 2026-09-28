@@ -414,7 +414,7 @@ def generatesurvey(name,survoffsets,forcereload=False,speclibrary='calspec23'):
         print(f'Retrieving {name} from cache', flush=True)
         return __surveycache__[name]
     ps1synth=loadsynthphot('output_synthetic_magsaper/synth_PS1_shift_0.000.txt')
-    cut=(ps1synth['standard_catagory']==speclibrary)& ( ps1synth['PS1g']-ps1synth['PS1i'] > .25 ) &(ps1synth['PS1g']-ps1synth['PS1i'] <1.6)
+    cut=(ps1synth['standard_catagory']==speclibrary)& ( ps1synth['PS1g']-ps1synth['PS1i'] > .25 ) &(ps1synth['PS1g']-ps1synth['PS1i'] <1.0)
     print(f'Preparing {name}', flush=True)
     
     if name=='SNLS':
@@ -471,7 +471,7 @@ def generatesurvey(name,survoffsets,forcereload=False,speclibrary='calspec23'):
         nans=(~reduce(lambda x,y: x|y,[np.isnan(synth[x]) for x in filts],False))
         obscut=(~reduce(lambda x,y: x|y,[np.abs(obs[x])>30 for x in filts],False) )#& (obs['Foundationg']-obs['DESr'] > .2)& (obs['DESg']-obs['DESr'] <1)
         surv=survey(name,lambda obs=obs[obscut]: stats.gaussian_kde(obs['Foundationg']).resample(1)[0][0],  stats.exponnorm(1e-2,loc=.2,scale=.3).rvs,      
-              (0,1),filts,obs[obscut], synth[cut&nans],ps1synth[cut&nans], survoffsets[name],survoffsets['PS1'],.2 ,True)
+              (0,1),filts,obs[obscut], synth[cut&nans],ps1synth[cut&nans], survoffsets[name],survoffsets['PS1'],.2 ,False)
     
     elif name=='PS1SN':
         filts=[name+x for x in 'griz']
@@ -480,7 +480,7 @@ def generatesurvey(name,survoffsets,forcereload=False,speclibrary='calspec23'):
         nans=(~reduce(lambda x,y: x|y,[np.isnan(synth[x]) for x in filts],False))
         obscut=(~reduce(lambda x,y: x|y,[np.abs(obs[x])>30 for x in filts],False) )#& (obs['Foundationg']-obs['DESr'] > .2)& (obs['DESg']-obs['DESr'] <1)
         surv=survey(name,lambda obs=obs[obscut]: stats.gaussian_kde(obs['PS1SNg']).resample(1)[0][0],  stats.exponnorm(1e-2,loc=.2,scale=.3).rvs ,  
-              (0,1),filts,obs[obscut], synth[cut&nans],ps1synth[cut&nans], survoffsets[name],survoffsets['PS1'] ,.2,True)
+              (0,1),filts,obs[obscut], synth[cut&nans],ps1synth[cut&nans], survoffsets[name],survoffsets['PS1'] ,.2,False)
     
     
     elif name=='ZTFD':

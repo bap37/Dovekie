@@ -511,6 +511,31 @@ def full_posterior(surveys_for_chisq, fixsurveynames,surveydata,obsdfs,reference
             filt1s.extend([    'g',    'r',    'i',    'z']) # PS1 magnitude band
             filt2s.extend([    'g',    'r',    'i',    'z']) # DES magnitude band
 
+        if "DEBASS" in surveys_for_chisq:
+            surv1s.extend([  'PS1',  'PS1',  'PS1',  'PS1']) #always PS1
+            surv2s.extend([  'DEBASS',  'DEBASS',  'DEBASS',  'DEBASS']) #Survey to compare
+            filtas.extend([    'g',    'g',    'g',    'g']) #first filter for colour
+            filtbs.extend([    'i',    'i',    'i',    'i']) #second filter for colour
+            filt1s.extend([    'g',    'r',    'i',    'z']) # PS1 magnitude band
+            filt2s.extend([    'g',    'r',    'i',    'z']) # DES magnitude band
+
+        if "DEBASSO" in surveys_for_chisq:
+            surv1s.extend([  'PS1',  'PS1',  'PS1',  'PS1']) #always PS1
+            surv2s.extend([  'DEBASSO',  'DEBASSO',  'DEBASSO',  'DEBASSO']) #Survey to compare
+            filtas.extend([    'g',    'g',    'g',    'g']) #first filter for colour
+            filtbs.extend([    'i',    'i',    'i',    'i']) #second filter for colour
+            filt1s.extend([    'g',    'r',    'i',    'z']) # PS1 magnitude band
+            filt2s.extend([    'g',    'r',    'i',    'z']) # DES magnitude band
+
+        if "DEBASSI" in surveys_for_chisq:
+            surv1s.extend([  'PS1',  'PS1',  'PS1',  'PS1']) #always PS1
+            surv2s.extend([  'DEBASSI',  'DEBASSI',  'DEBASSI',  'DEBASSI']) #Survey to compare
+            filtas.extend([    'g',    'g',    'g',    'g']) #first filter for colour
+            filtbs.extend([    'i',    'i',    'i',    'i']) #second filter for colour
+            filt1s.extend([    'g',    'r',    'i',    'z']) # PS1 magnitude band
+            filt2s.extend([    'g',    'r',    'i',    'z']) # DES magnitude band
+
+
         if "CSP" in surveys_for_chisq:
             surv1s.extend([    'PS1',    'PS1',    'PS1',    'PS1',    'PS1',   'PS1',   'PS1',   'PS1'])
             surv2s.extend([ 'CSP', 'CSP', 'CSP', 'CSP', 'CSP','CSP','CSP','CSP'])
@@ -905,8 +930,23 @@ def lnprior(paramsdict):
         'DES':[0,.01],
         'D3YR':[0,.01],
         'DEBASS':[0,.01],
+        'DEBASSO':[0,.01],
+        'DEBASSI':[0,.01],
         'SSS':[0,0.03],
-        'ATLAS':[0,0.03]
+        'ATLAS':[0,0.03],
+        'SWIFT':[0,0.03],
+        'KAIT1MO':[0,0.03],
+        'KAIT2MO':[0,0.03],
+        'KAIT3MO':[0,0.03],
+        'KAIT4MO':[0,0.03],
+        'KAIT3':[0,0.03],        
+        'KAIT4':[0,0.03],
+        'NICKEL1MO':[0,0.03],
+        'NICKEL2MO':[0,0.03],
+        'NICKEL1':[0,0.03],
+        'NICKEL2':[0,0.03],
+        'ASASSN1':[0,0.03],
+        'ASASSN2':[0,0.03],
         }    
 
     lp = 0
